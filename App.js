@@ -35,20 +35,9 @@ import {Permisions } from 'expo';
   );
 }*/
 
-/*const loadAllMapData = async() => {
-  let mapData = [];
-  for(let i=11; i<=30; i++){
-     let response = await fetch('https://opendata.arcgis.com/datasets/b760e319033841348469bacb34c5e259_644.geojson'+i);
-     let json = await response.json();
-     mapData.push({_id: json.id, name: json.naam, straat: json.straat, huisnummer: json.huisnummer});
-  }
-  return mapData;
-}
-useEffect(()=>{
-  loadAllMapData();
-},[])*/
 
-export const ListScreen = ({navigation}) => {
+
+/*export const ListScreen = ({navigation}) => {
   const [features, setList] = useState([]);
 
   const loadList = async () =>{
@@ -73,9 +62,9 @@ export const ListScreen = ({navigation}) => {
     </View>
   );
 
-};
+};*/
 
-/*export const ListScreen = ({navigation}) => {
+export const ListScreen = ({navigation}) => {
   const [features, setList] = useState([]);
 
   const loadList = async () =>{
@@ -91,12 +80,14 @@ export const ListScreen = ({navigation}) => {
     }
   }
 
-  /*const renderItem = ({item}) =>{
+  const renderItem = ({item}) =>{
+
     return (
 
         <View style = {{backgroundColor: "grey", padding: 20, margin: 10}}>
         <Text>{item.properties.naam}</Text>
-        <Button title="Details" onPress={() =>navigation.navigate('Details')}/>
+        <Button title="Details" onPress={() =>navigation.navigate('Details',
+         {name: item.properties.naam, street: item.properties.straat, postalcode: item.properties.postcode, district: item.properties.district, longitude: item.properties.y, latitude: item.properties.x})}/>
       </View>);
       
     //<ListView name = {item.properties.naam}/>);
@@ -110,36 +101,23 @@ export const ListScreen = ({navigation}) => {
   },[])
 
   return(
-<View>
-    {features.map((feature)=>{
-      return <Text key = {feature.properties.id}> {feature.properties.naam} </Text>
-    })}
-    <Button title="Load list" onPress={loadList}/>
-    </View>
-   /* <View style={styles.container}>
+
+    <View style={styles.container}>
 
     <FlatList
-    data = {mapList}
+    data = {features}
     renderItem = {renderItem}
     keyExtractor = {keyExtractor}/>
     
     </View>
   );
 
-};*/
+};
 
-export const MapDetailsScreen = () =>{
-  //const {item} = route.params;
-  /*useEffect(()=>{
-    navigation.navigate(onPress = { 'Details',
-      itemId : item.properties.id,
-      itemnaam : item.properties.naam
-    })
-  }, []);*/
+export const MapDetailsScreen = ({navigation, route}) =>{
+  
   return(
-    
-      <Text>Blabla</Text>
-    
+  <Text>{route.params.name},{route.params.longitude}</Text>
 
   );
 }
