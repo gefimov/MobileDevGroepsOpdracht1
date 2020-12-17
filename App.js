@@ -83,10 +83,13 @@ export const ListScreen = ({navigation}) => {
 
     return (
 
-        <View style = {{backgroundColor: "grey", padding: 20, margin: 10}}>
-        <Text>{item.properties.naam}</Text>
-        <Button title="Details" onPress={() =>navigation.navigate('Details',
-         {name: item.properties.naam, street: item.properties.straat, postalcode: item.properties.postcode, district: item.properties.district, longitude: item.properties.y, latitude: item.properties.x})}/>
+        <View style = {{backgroundColor: "white", padding: 20, margin: 10}}>
+          
+        <Text title="Details" onPress={() =>navigation.navigate('Details',
+         {name: item.properties.naam, street: item.properties.straat, houseNumber: item.properties.huisnummer, postalcode: item.properties.postcode, district: item.properties.district, longitude: item.properties.y, latitude: item.properties.x})}>
+          {item.properties.naam}
+         
+        </Text>
       </View>);
       
     //<ListView name = {item.properties.naam}/>);
@@ -116,7 +119,15 @@ export const ListScreen = ({navigation}) => {
 export const MapDetailsScreen = ({navigation, route}) =>{
   
   return(
-  <Text>{route.params.name},{route.params.longitude}</Text>
+    <View>
+      <Text>Naam</Text>
+      <Text>Naam:</Text>
+      <Text>{route.params.name}</Text>
+      <Text>Informatieveld 1:</Text>
+      <Text>{route.params.street} {route.params.houseNumber} </Text>
+      <Text>Informatieveld 2:</Text>
+      <Text>{route.params.district} {route.params.postalcode}</Text>
+    </View>
 
   );
 }
