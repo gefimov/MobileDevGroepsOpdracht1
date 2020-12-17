@@ -9,6 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import MapView, {Marker} from 'react-native-maps';
 import { set } from 'react-native-reanimated';
 import { useNavigation } from '@react-navigation/native';
+import {Permisions } from 'expo';
 
 /*const getZwembadenFromApiAsync = async () => {
   try {
@@ -148,7 +149,28 @@ export const MapDetailsScreen = () =>{
 
 const Tab = createBottomTabNavigator();
 
-export default () => {
+export default class App extends React.Component () {
+
+  state = {latitude:null,
+    longitude:null
+    }
+      
+    async componentDidUpdate(){
+      const {status} = await Permissions.getAsync(Permissions.LOCATION)
+    
+      if (status != 'granted'){
+    const response = await Permissions.askAsync(Permissions.LOCATION)
+      }
+    
+      navigator.geolocation.getCurrentPosition(({ coords:{latitude,longitude} }) => this.setState({latitude, longitude}, () =>console.log('State:',this.state)),
+        (error) => console.log('Error:',error ))
+    }
+      rennder(){
+      return(
+        <MapView style={{flex:1}}/>
+      );
+    }
+    rennder(){
   return (
     
     <NavigationContainer>
@@ -157,9 +179,11 @@ export default () => {
       <Stack.Screen name="Details" component={MapDetailsScreen} />
     </Stack.Navigator>
     </NavigationContainer>
-   
+    );
+    }
 
-  );
+
+  
 }
 
 const Stack = createStackNavigator();
