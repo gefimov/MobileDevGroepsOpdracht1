@@ -3,13 +3,12 @@ import React , {useEffect, useState} from 'react';
 import { StyleSheet, Text, TextInput, View, Button, TouchableOpacity, ActivityIndicator, SectionList } from 'react-native';
 import {createBottomTabNavigator} from "@react-navigation/bottom-tabs";
 import {createStackNavigator} from "@react-navigation/stack";
-import {NavigationContainer} from "@react-navigation/native";
+import {NavigationContainer, useFocusEffect} from "@react-navigation/native";
 import { FlatList } from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import MapView, {Marker} from 'react-native-maps';
 import { set } from 'react-native-reanimated';
 import { useNavigation } from '@react-navigation/native';
-import {Permisions } from 'expo';
 
 /*const getZwembadenFromApiAsync = async () => {
   try {
@@ -64,6 +63,9 @@ import {Permisions } from 'expo';
 
 };*/
 
+
+
+
 export const ListScreen = ({navigation}) => {
   const [features, setList] = useState([]);
 
@@ -91,6 +93,8 @@ export const ListScreen = ({navigation}) => {
           {item.properties.naam}
          
         </Text>
+
+        
       </View>);
       
     //<ListView name = {item.properties.naam}/>);
@@ -138,28 +142,7 @@ export const MapDetailsScreen = ({navigation, route}) =>{
 
 const Tab = createBottomTabNavigator();
 
-export default class App extends React.Component () {
-
-  state = {latitude:null,
-    longitude:null
-    }
-      
-    async componentDidUpdate(){
-      const {status} = await Permissions.getAsync(Permissions.LOCATION)
-    
-      if (status != 'granted'){
-    const response = await Permissions.askAsync(Permissions.LOCATION)
-      }
-    
-      navigator.geolocation.getCurrentPosition(({ coords:{latitude,longitude} }) => this.setState({latitude, longitude}, () =>console.log('State:',this.state)),
-        (error) => console.log('Error:',error ))
-    }
-      rennder(){
-      return(
-        <MapView style={{flex:1}}/>
-      );
-    }
-    rennder(){
+export default () => {
   return (
     
     <NavigationContainer>
@@ -168,11 +151,9 @@ export default class App extends React.Component () {
       <Stack.Screen name="Details" component={MapDetailsScreen} />
     </Stack.Navigator>
     </NavigationContainer>
-    );
-    }
+   
 
-
-  
+  );
 }
 
 const Stack = createStackNavigator();
@@ -192,8 +173,31 @@ export const MapScreenStack = () =>{
 
 
 export const MapScreen = () =>{
+
+  const [location, setList] = useState([]);
+
+  const loadLocationList = async () =>{
+    try{
+      let response = await fetch('https://opendata.arcgis.com/datasets/b760e319033841348469bacb34c5e259_644.geojson');
+
+      let json = await response.json();
+
+
+      setList(json.features);
+    }catch(error){
+
+    }
+  }
+
+  useEffect(()=> {
+    loadLocationList();
+  },[])
   return(
-    <MapView style={{flex:1}}/>
+    <MapView style={{flex:1}} >
+      
+{ location !=null && location.map((zwembad,i) => <Marker key = {i} coordinate = {{latitude:zwembad.geometry.coordinates[1],longitude:zwembad.geometry.coordinates[0]}} />)}
+     
+    </MapView>
   );
 }
 
