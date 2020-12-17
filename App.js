@@ -34,8 +34,21 @@ import { useNavigation } from '@react-navigation/native';
   );
 }*/
 
+/*const loadAllMapData = async() => {
+  let mapData = [];
+  for(let i=11; i<=30; i++){
+     let response = await fetch('https://opendata.arcgis.com/datasets/b760e319033841348469bacb34c5e259_644.geojson'+i);
+     let json = await response.json();
+     mapData.push({_id: json.id, name: json.naam, straat: json.straat, huisnummer: json.huisnummer});
+  }
+  return mapData;
+}
+useEffect(()=>{
+  loadAllMapData();
+},[])*/
+
 export const ListScreen = ({navigation}) => {
-  const [mapList, setList] = useState([]);
+  const [features, setList] = useState([]);
 
   const loadList = async () =>{
     try{
@@ -50,7 +63,34 @@ export const ListScreen = ({navigation}) => {
     }
   }
 
-  const renderItem = ({item}) =>{
+  return(
+<View>
+    {features.map((feature)=>{
+      return <Text key = {feature.properties.id}> {feature.properties.naam}, {feature.properties.straat} </Text>
+    })}
+    <Button title="Load list" onPress={loadList}/>
+    </View>
+  );
+
+};
+
+/*export const ListScreen = ({navigation}) => {
+  const [features, setList] = useState([]);
+
+  const loadList = async () =>{
+    try{
+      let response = await fetch('https://opendata.arcgis.com/datasets/b760e319033841348469bacb34c5e259_644.geojson');
+
+      let json = await response.json();
+
+
+      setList(json.features);
+    }catch(error){
+
+    }
+  }
+
+  /*const renderItem = ({item}) =>{
     return (
 
         <View style = {{backgroundColor: "grey", padding: 20, margin: 10}}>
@@ -69,7 +109,13 @@ export const ListScreen = ({navigation}) => {
   },[])
 
   return(
-    <View style={styles.container}>
+<View>
+    {features.map((feature)=>{
+      return <Text key = {feature.properties.id}> {feature.properties.naam} </Text>
+    })}
+    <Button title="Load list" onPress={loadList}/>
+    </View>
+   /* <View style={styles.container}>
 
     <FlatList
     data = {mapList}
@@ -79,11 +125,23 @@ export const ListScreen = ({navigation}) => {
     </View>
   );
 
+};*/
 
+export const MapDetailsScreen = () =>{
+  //const {item} = route.params;
+  /*useEffect(()=>{
+    navigation.navigate(onPress = { 'Details',
+      itemId : item.properties.id,
+      itemnaam : item.properties.naam
+    })
+  }, []);*/
+  return(
+    
+      <Text>Blabla</Text>
+    
 
-};
-
-
+  );
+}
 
 
 //<Stack.Screen name="Listscreen" component={ListScreen} options={{title:"Zwembaden lijst"}}/>
@@ -118,13 +176,7 @@ export const MapScreenStack = () =>{
   );
 }
 
-export const MapDetailsScreen = ({navigation, route}) =>{
-  const {itemId} = route.params;
-  return(
-    <Text>BlabLa</Text>
 
-  );
-}
 
 export const MapScreen = () =>{
   return(
