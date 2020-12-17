@@ -6,7 +6,7 @@ import {createStackNavigator} from "@react-navigation/stack";
 import {NavigationContainer, useFocusEffect} from "@react-navigation/native";
 import { FlatList } from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import MapView, {Callout, Marker} from 'react-native-maps';
+import MapView, {Marker,Callout} from 'react-native-maps';
 import { set } from 'react-native-reanimated';
 import { useNavigation } from '@react-navigation/native';
 
@@ -89,7 +89,7 @@ export const ListScreen = ({navigation}) => {
         <View style = {{backgroundColor: "white", padding: 20, margin: 10}}>
           
         <Text title="Details" onPress={() =>navigation.navigate('Details',
-         {name: item.properties.naam, street: item.properties.straat, houseNumber: item.properties.huisnummer, postalcode: item.properties.postcode, district: item.properties.district, longitude: item.properties.y, latitude: item.properties.x})}>
+         {zwembad:item.properties})}>
           {item.properties.naam}
          
         </Text>
@@ -127,11 +127,11 @@ export const MapDetailsScreen = ({navigation, route}) =>{
     <View>
       <Text>Naam</Text>
       <Text>Naam:</Text>
-      <Text>{route.params.name}</Text>
+      <Text>{route.params.zwembad.naam}</Text>
       <Text>Informatieveld 1:</Text>
-      <Text>{route.params.street} {route.params.houseNumber} </Text>
+      <Text>{route.params.zwembad.straat} {route.params.zwembad.huisnummer} </Text>
       <Text>Informatieveld 2:</Text>
-      <Text>{route.params.district} {route.params.postalcode}</Text>
+      <Text>{route.params.zwembad.district} {route.params.zwembad.postalcode}</Text>
     </View>
 
   );
@@ -172,11 +172,11 @@ export const MapScreenStack = () =>{
 
 
 
-export const MapScreen = () =>{
+export const MapScreen = ({navigation}) =>{
 
-  const [location, setList] = useState([]);
+  const [features, setList] = useState([]);
 
-  const loadLocationList = async () =>{
+  const loadList = async () =>{
     try{
       let response = await fetch('https://opendata.arcgis.com/datasets/b760e319033841348469bacb34c5e259_644.geojson');
 
@@ -189,29 +189,31 @@ export const MapScreen = () =>{
     }
   }
 
-
   useEffect(()=> {
-    loadLocationList();
+    loadList();
   },[])
   return(
+    
     <MapView initialRegion={{latitude: 51.229829,
       longitude: 4.415918,
       latitudeDelta: 0.0922,
       longitudeDelta: 0.0421,}} style={{flex:1}} >
       
-{ location !=null && location.map((zwembad,i) => <Marker key = {i} coordinate = {{latitude:zwembad.geometry.coordinates[1],longitude:zwembad.geometry.coordinates[0]}}>
-  <Callout>
-    <View style={{height: 100, width: 200}}>
-          <Text> {zwembad.properties.naam} </Text>
-          <Text> {zwembad.properties.straat}  {zwembad.properties.huisnummer} {zwembad.properties.district} {zwembad.properties.postcode}</Text>
-          <Button title="Details" onPress={() =>navigation.navigate('Details')}/>
-      </View>
-  </Callout>
-</Marker>
+{ features !=null && features.map((zwembad,i) =>
 
-)}
+ <Marker  key = {i} coordinate = {{latitude:zwembad.geometry.coordinates[1],longitude:zwembad.geometry.coordinates[0]}} >
+    <Callout onPress={() => {navigation.navigate('Details',{zwembad:zwembad.properties})}}  >
+      <Text >{zwembad.properties.naam}{'\n'}{zwembad.properties.straat} {zwembad.properties.huisnummer}
+    </Text>
+    <Text style ={{flex:1,flexDirection:'row',backgroundColor:'lightblue',color:'white',padding:10, textAlign:'center',marginTop:5,marginBottom:5}}>Details</Text>
+    </Callout>
+    </Marker>)}
+     
+     
      
     </MapView>
+
+   
   );
 }
 
