@@ -6,7 +6,7 @@ import {createStackNavigator} from "@react-navigation/stack";
 import {NavigationContainer, useFocusEffect} from "@react-navigation/native";
 import { FlatList } from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import MapView, {Marker} from 'react-native-maps';
+import MapView, {Callout, Marker} from 'react-native-maps';
 import { set } from 'react-native-reanimated';
 import { useNavigation } from '@react-navigation/native';
 
@@ -189,13 +189,27 @@ export const MapScreen = () =>{
     }
   }
 
+
   useEffect(()=> {
     loadLocationList();
   },[])
   return(
-    <MapView style={{flex:1}} >
+    <MapView initialRegion={{latitude: 51.229829,
+      longitude: 4.415918,
+      latitudeDelta: 0.0922,
+      longitudeDelta: 0.0421,}} style={{flex:1}} >
       
-{ location !=null && location.map((zwembad,i) => <Marker key = {i} coordinate = {{latitude:zwembad.geometry.coordinates[1],longitude:zwembad.geometry.coordinates[0]}} />)}
+{ location !=null && location.map((zwembad,i) => <Marker key = {i} coordinate = {{latitude:zwembad.geometry.coordinates[1],longitude:zwembad.geometry.coordinates[0]}}>
+  <Callout>
+    <View style={{height: 100, width: 200}}>
+          <Text> {zwembad.properties.naam} </Text>
+          <Text> {zwembad.properties.straat}  {zwembad.properties.huisnummer} {zwembad.properties.district} {zwembad.properties.postcode}</Text>
+          <Button title="Details" onPress={() =>navigation.navigate('Details')}/>
+      </View>
+  </Callout>
+</Marker>
+
+)}
      
     </MapView>
   );
