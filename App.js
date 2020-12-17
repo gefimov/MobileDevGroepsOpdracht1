@@ -3,13 +3,12 @@ import React , {useEffect, useState} from 'react';
 import { StyleSheet, Text, TextInput, View, Button, TouchableOpacity, ActivityIndicator, SectionList } from 'react-native';
 import {createBottomTabNavigator} from "@react-navigation/bottom-tabs";
 import {createStackNavigator} from "@react-navigation/stack";
-import {NavigationContainer} from "@react-navigation/native";
+import {NavigationContainer, useFocusEffect} from "@react-navigation/native";
 import { FlatList } from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import MapView, {Marker} from 'react-native-maps';
+import MapView, {Marker,Callout} from 'react-native-maps';
 import { set } from 'react-native-reanimated';
 import { useNavigation } from '@react-navigation/native';
-import {Permisions } from 'expo';
 
 /*const getZwembadenFromApiAsync = async () => {
   try {
@@ -64,6 +63,9 @@ import {Permisions } from 'expo';
 
 };*/
 
+
+
+
 export const ListScreen = ({navigation}) => {
   const [features, setList] = useState([]);
 
@@ -84,10 +86,15 @@ export const ListScreen = ({navigation}) => {
 
     return (
 
-        <View style = {{backgroundColor: "grey", padding: 20, margin: 10}}>
-        <Text>{item.properties.naam}</Text>
-        <Button title="Details" onPress={() =>navigation.navigate('Details',
-         {name: item.properties.naam, street: item.properties.straat, postalcode: item.properties.postcode, district: item.properties.district, longitude: item.properties.y, latitude: item.properties.x})}/>
+        <View style = {{backgroundColor: "white", padding: 20, margin: 10}}>
+          
+        <Text title="Details" onPress={() =>navigation.navigate('Details',
+         {zwembad:item.properties})}>
+          {item.properties.naam}
+         
+        </Text>
+
+        
       </View>);
       
     //<ListView name = {item.properties.naam}/>);
@@ -117,7 +124,15 @@ export const ListScreen = ({navigation}) => {
 export const MapDetailsScreen = ({navigation, route}) =>{
   
   return(
-  <Text>{route.params.name},{route.params.longitude}</Text>
+    <View>
+      <Text>Naam</Text>
+      <Text>Naam:</Text>
+      <Text>{route.params.zwembad.naam}</Text>
+      <Text>Informatieveld 1:</Text>
+      <Text>{route.params.zwembad.straat} {route.params.zwembad.huisnummer} </Text>
+      <Text>Informatieveld 2:</Text>
+      <Text>{route.params.zwembad.district} {route.params.zwembad.postalcode}</Text>
+    </View>
 
   );
 }
@@ -127,28 +142,7 @@ export const MapDetailsScreen = ({navigation, route}) =>{
 
 const Tab = createBottomTabNavigator();
 
-export default class App extends React.Component () {
-
-  state = {latitude:null,
-    longitude:null
-    }
-      
-    async componentDidUpdate(){
-      const {status} = await Permissions.getAsync(Permissions.LOCATION)
-    
-      if (status != 'granted'){
-    const response = await Permissions.askAsync(Permissions.LOCATION)
-      }
-    
-      navigator.geolocation.getCurrentPosition(({ coords:{latitude,longitude} }) => this.setState({latitude, longitude}, () =>console.log('State:',this.state)),
-        (error) => console.log('Error:',error ))
-    }
-      rennder(){
-      return(
-        <MapView style={{flex:1}}/>
-      );
-    }
-    rennder(){
+export default () => {
   return (
     
     <NavigationContainer>
@@ -157,11 +151,9 @@ export default class App extends React.Component () {
       <Stack.Screen name="Details" component={MapDetailsScreen} />
     </Stack.Navigator>
     </NavigationContainer>
-    );
-    }
+   
 
-
-  
+  );
 }
 
 const Stack = createStackNavigator();
@@ -180,9 +172,42 @@ export const MapScreenStack = () =>{
 
 
 
-export const MapScreen = () =>{
+export const MapScreen = ({navigation}) =>{
+
+  const [features, setList] = useState([]);
+
+  const loadList = async () =>{
+    try{
+      let response = await fetch('https://opendata.arcgis.com/datasets/b760e319033841348469bacb34c5e259_644.geojson');
+
+      let json = await response.json();
+
+
+      setList(json.features);
+    }catch(error){
+
+    }
+  }
+
+  useEffect(()=> {
+    loadList();
+  },[])
   return(
-    <MapView style={{flex:1}}/>
+    
+    <MapView initialRegion={{latitude: 51.229829,
+      longitude: 4.415918,
+      latitudeDelta: 0.0922,
+      longitudeDelta: 0.0421,}} style={{flex:1}} >
+      
+{ features !=null && features.map((zwembad,i) =>
+
+ <Marker  key = {i} coordinate = {{latitude:zwembad.geometry.coordinates[1],longitude:zwembad.geometry.coordinates[0]}} >
+    <Callout onPress={() => {navigation.navigate('Details',{zwembad:zwembad.properties})}}  ><Text >{zwembad.properties.naam}{'\n'}{zwembad.properties.straat} {zwembad.properties.huisnummer}
+    </Text><Text style ={{flex:1,flexDirection:'row',backgroundColor:'lightblue',color:'white',padding:10, textAlign:'center',marginTop:5,marginBottom:5}}>Details</Text></Callout>
+    </Marker>)}    
+    </MapView>
+
+   
   );
 }
 
